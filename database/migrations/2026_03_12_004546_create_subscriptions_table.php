@@ -6,20 +6,40 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('company_id')
+                  ->constrained()
+                  ->onDelete('cascade');
+
+            $table->enum('plan', ['starter', 'pro', 'business']);
+            $table->decimal('price', 10, 2);
+            $table->string('currency')->default('MAD');
+
+            // Period
+            $table->timestamp('starts_at');
+            $table->timestamp('ends_at');
+
+            // Status
+            $table->enum('status', [
+                'active',
+                'expired',
+                'cancelled',
+                'grace_period'
+            ])->default('active');
+
+            // Payment
+            $table->string('payment_reference')->nullable();
+            $table->string('payment_method')->nullable();
+            $table->timestamp('paid_at')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('subscriptions');
